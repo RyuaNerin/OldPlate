@@ -5,8 +5,8 @@ IDR_DLL_RESOURCE1       DLL_RESOURCE            "..\\bin\\OldPlateCore.dll"
 
 
 1 VERSIONINFO
-FILEVERSION 1, 0, 0, 0
-PRODUCTVERSION 1, 0, 0, 0
+FILEVERSION OLDPLATE_VERSION
+PRODUCTVERSION OLDPLATE_VERSION
 FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
 FILEFLAGS 0x1L
@@ -24,13 +24,13 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "RyuaNerin"
             VALUE "FileDescription", "OldPlate"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", OLDPLATE_VERSION_STR
             VALUE "InternalName", "OldPlate"
             VALUE "LegalCopyright", "Copyright (C) 2021 RyuaNerin."
             VALUE "LegalTrademarks", "RyuaNerin"
             VALUE "OriginalFilename", "OldPlate.exe"
             VALUE "ProductName", "OldPlate"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", OLDPLATE_VERSION_STR
         END
     END
     BLOCK "VarFileInfo"

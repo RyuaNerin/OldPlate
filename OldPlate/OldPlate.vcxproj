@@ -46,10 +46,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <ExternalIncludePath>$(SolutionDir)\jsoncpp-1.9.4\;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <ExternalIncludePath>$(SolutionDir)\jsoncpp-1.9.4\;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -95,9 +97,15 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\jsoncpp-1.9.4\jsoncpp.cpp" />
+    <ClCompile Include="checkLatestRelease.cpp" />
+    <ClCompile Include="http.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="checkLatestRelease.h" />
+    <ClInclude Include="defer.h" />
+    <ClInclude Include="http.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

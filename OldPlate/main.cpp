@@ -4,7 +4,9 @@
 #include <memory>
 #include <filesystem>
 
+#include "checkLatestRelease.h"
 #include "resource.h"
+#include "defer.h"
 
 constexpr auto BASE_DLL_NAME = L"OldPlateCore_____";
 
@@ -37,19 +39,25 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 {
     std::wstring error;
 
+    if (checkLatestRelease() == RELEASE_RESULT::NEW_RELEASE)
+    {
+
+    }
+
     HANDLE hToken;
     if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken) == FALSE)
     {
         error = format(L"오류가 발생하였습니다.\n\n오류 정보 : OpenProcessToken (%d)", GetLastError());
-        MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+        MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
+    defer(CloseHandle(hToken));
 
     LUID luid = { 0, };
     if (LookupPrivilegeValueW(nullptr, L"SeDebugPrivilege", &luid) == FALSE)
     {
         error = format(L"오류가 발생하였습니다.\n\n오류 정보 : LookupPrivilegeValueW (%d)", GetLastError());
-        MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+        MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
@@ -61,14 +69,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     if (AdjustTokenPrivileges(hToken, false, &tp, sizeof(tp), nullptr, nullptr) == FALSE)
     {
         error = format(L"오류가 발생하였습니다.\n\n오류 정보 : AdjustTokenPrivileges (%d)", GetLastError());
-        MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+        MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
     if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
     {
         error = format(L"오류가 발생하였습니다.\n\n오류 정보 : GetLastError (%d) = ERROR_NOT_ALL_ASSIGNED", GetLastError());
-        MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+        MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
@@ -77,14 +85,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     HWND hFFXIV = FindWindowW(L"FFXIVGAME", NULL);
     if (hFFXIV == NULL)
     {
-        MessageBoxW(NULL, L"파이널 판타지 14가 실행중이 아니거나, 찾을 수 없습니다.", L"OldPlateCore", 0);
+        MessageBoxW(NULL, L"파이널 판타지 14가 실행중이 아니거나, 찾을 수 없습니다.", OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
     DWORD pid;
     if (GetWindowThreadProcessId(hFFXIV, &pid) == 0 || pid == 0)
     {
-        MessageBoxW(NULL, L"파이널 판타지 14가 실행중이 아니거나, 찾을 수 없습니다.", L"OldPlateCore", 0);
+        MessageBoxW(NULL, L"파이널 판타지 14가 실행중이 아니거나, 찾을 수 없습니다.", OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
@@ -94,7 +102,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
         if (hProc == NULL)
         {
-            MessageBoxW(NULL, L"권한이 없습니다. 관리자 권한으로 실행시켜주세요.", L"OldPlateCore", 0);
+            MessageBoxW(NULL, L"권한이 없습니다. 관리자 권한으로 실행시켜주세요.", OLDPLATE_PROJECT_NAME, 0);
             return 1;
         }
     }
@@ -104,7 +112,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     HMODULE hModule = GetModuleHandleW(NULL);
     if (hModule == NULL)
     {
-        MessageBoxW(NULL, L"권한이 없습니다. 관리자 권한으로 실행시켜주세요.", L"OldPlateCore", 0);
+        MessageBoxW(NULL, L"권한이 없습니다. 관리자 권한으로 실행시켜주세요.", OLDPLATE_PROJECT_NAME, 0);
         return 1;
     }
 
@@ -113,10 +121,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     if (isInjected(pid, BASE_DLL_NAME, &pDllBaseAddress, &dllPath))
     {
         if (!uninjectDll(pid, pDllBaseAddress, &error))
-            MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+            MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         else
         {
-            MessageBoxW(NULL, L"해제되었습니다.", L"OldPlateCore", 0);
+            MessageBoxW(NULL, L"해제되었습니다.", OLDPLATE_PROJECT_NAME, 0);
 
             try
             {
@@ -143,8 +151,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         HRSRC hResource = FindResourceW(hInstance, MAKEINTRESOURCEW(IDR_DLL_RESOURCE1), L"DLL_RESOURCE");
         HGLOBAL hLoaded = LoadResource(hInstance, hResource);
 
-        LPVOID lpLock = LockResource(hLoaded);
         {
+            LPVOID lpLock = LockResource(hLoaded);
+            defer(FreeResource(lpLock));
+
             DWORD dwSize = SizeofResource(hInstance, hResource);
 
             HANDLE hFile = CreateFileW(tempPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -152,14 +162,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             WriteFile(hFile, lpLock, dwSize, &dwByteWritten, NULL);
             CloseHandle(hFile);
         }
-        FreeResource(lpLock);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         if (!injectDll(pid, tempPath.c_str(), &error))
-            MessageBoxW(NULL, error.c_str(), L"OldPlateCore", 0);
+            MessageBoxW(NULL, error.c_str(), OLDPLATE_PROJECT_NAME, 0);
         else
-            MessageBoxW(NULL, L"적용되었습니다.", L"OldPlateCore", 0);
+            MessageBoxW(NULL, L"적용되었습니다.", OLDPLATE_PROJECT_NAME, 0);
     }
 
     return 0;
