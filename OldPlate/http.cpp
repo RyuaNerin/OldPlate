@@ -26,8 +26,8 @@ bool getHttp(LPCWSTR host, LPCWSTR path, std::string &body)
 
     if (WinHttpReceiveResponse(hRequest, NULL) == FALSE) return false;
 
-    DWORD dwStatusCode;
-    DWORD dwSize;
+    DWORD dwStatusCode = 0;
+    DWORD dwSize = sizeof(dwStatusCode);
 
     if (WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX) == NULL) return false;
     if (dwStatusCode != 200) return false;
