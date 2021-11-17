@@ -16,8 +16,8 @@
 
 ## 사용방법
 
-- [여기](https://github.com/RyuaNerin/Paust/releases/latest) 에서 마지막 릴리즈를 **적당한 위치** 에 다운로드 해주세요.
+1. [여기](https://github.com/RyuaNerin/OldPlate/releases/latest) 에서 마지막 릴리즈를 **적당한 위치** 에 다운로드 해주세요.
 
-- 다운로드 받은 파일의 압축을 해제해주세요.
+1. `OldPlate.exe` 를 실행해주세요.
 
-- `OldPlate.exe` 를 실행해주세요.
+1. 해제를 원하시면 `OldPlate.exe` 를 다시 실행해주세요.
