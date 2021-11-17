@@ -54,5 +54,5 @@ bool getHttp(LPCWSTR host, LPCWSTR path, std::string &body)
         }
     } while (true);
 
-    return false;
+    return true;
 }
