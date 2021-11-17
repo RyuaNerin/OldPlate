@@ -41,7 +41,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     if (checkLatestRelease() == RELEASE_RESULT::NEW_RELEASE)
     {
-
+        MessageBoxW(NULL, L"최신 버전이 릴리즈 되었습니다!", OLDPLATE_PROJECT_NAME, 0);
+        ShellExecuteW(NULL, NULL, L"\"https://github.com/RyuaNerin/OldPlate/releases/latest\"", NULL, NULL, SW_SHOWNORMAL);
+        return 0;
     }
 
     HANDLE hToken;
